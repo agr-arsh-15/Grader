@@ -8,7 +8,7 @@
     <h1 class="page-title">New Assessment Package</h1>
     <p class="text-muted text-small mt-1">Upload an assessment codebase with injected bugs, rubric, and internal bug manifest.</p>
   </div>
-  <a href="/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+  <a href="/admin/assignments" class="btn btn-secondary">← Back to Assignments</a>
 </div>
 
 {% if error %}
@@ -62,10 +62,11 @@
     </div>
 
     <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
-      <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+      <a href="/admin/assignments" class="btn btn-secondary">Cancel</a>
       <button id="submit-btn" type="submit" class="btn btn-primary">
-        Create &amp; Assign Candidates →
+        Create Assessment →
       </button>
+
     </div>
   </form>
 </div>

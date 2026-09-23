@@ -8,64 +8,18 @@
     <h1 class="page-title">Assign Assessment &amp; Invite Candidates</h1>
     <p class="text-muted text-small mt-1">Package: <strong style="color:#fff;">{{ assignment.title }}</strong></p>
   </div>
-  <a href="/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+  <a href="/admin/assignments" class="btn btn-secondary">← Back to Assignments</a>
 </div>
 
 {% if error %}
-<div class="alert alert-error">{{ error }}</div>
+<div class="alert alert-error">
+  <span>⚠️</span> <span>{{ error }}</span>
+</div>
 {% endif %}
 
 {% if success %}
-<div class="alert alert-success">{{ success }}</div>
-{% endif %}
-
-{% if assigned_cards %}
-<div class="card mb-3" style="border-color: rgba(99, 102, 241, 0.4); background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);">
-  <div class="card-title flex items-center gap-2" style="margin-bottom: 0.75rem;">
-    <span>📧</span> Assessment Invitation Emails Generated
-  </div>
-  <p class="text-muted text-small mb-3">
-    The candidates below have been assigned to <strong>{{ assignment.title }}</strong>. Invitation emails have been prepared/dispatched.
-  </p>
-
-  <div style="display: flex; flex-direction: column; gap: 1rem;">
-    {% for card in assigned_cards %}
-    <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
-        <div>
-          <div style="font-size: 1rem; font-weight: 700; color: #fff;">{{ card.candidate_name }}</div>
-          <div style="font-size: 0.8rem; color: var(--text-dim);">To: {{ card.contact_email }}</div>
-        </div>
-        {% if card.email_status %}
-        <span class="badge badge-graded" style="font-size: 0.72rem;">{{ card.email_status }}</span>
-        {% endif %}
-      </div>
-
-      <div class="credentials-box" style="margin-bottom: 0.75rem; padding: 0.75rem 1rem;">
-        <div class="credential-item">
-          <span class="credential-label">Portal Username</span>
-          <span class="credential-value code-font" style="color: #a5b4fc;">{{ card.login_email }}</span>
-        </div>
-        <div class="credential-item">
-          <span class="credential-label">Default Password</span>
-          <span class="credential-value code-font" style="color: #86efac;">{{ card.password }}</span>
-        </div>
-      </div>
-
-      <!-- Hidden email body for clipboard -->
-      <textarea id="email-body-{{ loop.index }}" style="display:none;">{{ card.email_body }}</textarea>
-
-      <div class="flex gap-2">
-        <button type="button" class="btn btn-primary btn-sm" onclick="copyCardEmail('email-body-{{ loop.index }}')">
-          📋 Copy Formatted Email
-        </button>
-        <a href="mailto:{{ card.contact_email }}?subject={{ card.email_subject|urlencode }}&body={{ card.email_body|urlencode }}" class="btn btn-secondary btn-sm" target="_blank">
-          ✉️ Open in Email Client
-        </a>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
+<div class="alert alert-success">
+  <span>✅</span> <span>{{ success }}</span>
 </div>
 {% endif %}
 
@@ -75,7 +29,7 @@
     <div class="form-group">
       <label class="form-label" for="due_at">Submission Due Date &amp; Time (UTC) *</label>
       <input type="datetime-local" id="due_at" name="due_at" class="form-control" required />
-      <p class="form-hint">Candidates will see this deadline on their dashboard and in their invitation email.</p>
+      <p class="form-hint">Candidates will see this deadline on their dashboard.</p>
     </div>
 
     <div class="form-group">
@@ -128,17 +82,10 @@
       {% endif %}
     </div>
 
-    <div class="form-group" style="margin-top: 1.25rem;">
-      <label style="display:flex; align-items:center; gap:0.6rem; cursor:pointer; font-size:0.875rem;">
-        <input type="checkbox" name="send_email" value="on" checked style="accent-color: var(--accent);" />
-        <span>📧 Automatically dispatch invitation emails with task links &amp; credentials upon assignment</span>
-      </label>
-    </div>
-
     <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
-      <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+      <a href="/admin/assignments" class="btn btn-secondary">Cancel</a>
       <button id="assign-btn" type="submit" class="btn btn-primary" {% if not candidates %}disabled{% endif %}>
-        Assign Candidates &amp; Generate Invitations
+        Assign Candidates
       </button>
     </div>
   </form>
@@ -163,13 +110,6 @@
     });
   }
 
-  function copyCardEmail(elementId) {
-    const text = document.getElementById(elementId)?.value || '';
-    if (text) {
-      copyText(text, 'Formatted invitation email copied to clipboard!');
-    }
-  }
-
   document.getElementById('assign-form').addEventListener('submit', function(e) {
     const checked = document.querySelectorAll('.candidate-checkbox:checked');
     if (checked.length === 0) {
@@ -179,7 +119,7 @@
     }
     const btn = document.getElementById('assign-btn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Assigning &amp; preparing emails…';
+    btn.innerHTML = '<span class="spinner"></span> Assigning…';
   });
 </script>
 {% endblock %}

@@ -692,27 +692,6 @@ async def assign_candidates(
         created += 1
 
         candidate_name = candidate.full_name or candidate.email.split("@")[0]
-        default_pwd = generate_candidate_default_password(candidate_name)
-        target_email = candidate.contact_email or candidate.email
-
-        subject, plain_body = compose_assessment_email_text(
-            candidate_name=candidate_name,
-            login_email=candidate.email,
-            password=default_pwd,
-            portal_url=portal_url,
-            assignment_title=assignment.title,
-            due_date=due_date_str,
-        )
-
-        assigned_cards.append({
-            "candidate_name": candidate_name,
-            "login_email": candidate.email,
-            "password": default_pwd,
-            "contact_email": target_email,
-            "email_subject": subject,
-            "email_body": plain_body,
-        })
-
     await db.commit()
 
     candidates_result = await db.execute(
@@ -729,10 +708,10 @@ async def assign_candidates(
             "candidates": candidates_result.scalars().all(),
             "error": None,
             "success": f"Successfully assigned assessment to {created} candidate(s)!",
-            "assigned_cards": assigned_cards,
             "active_page": "assignments",
         },
     )
+
 
 
 # ─────────────────────────────────────────────
