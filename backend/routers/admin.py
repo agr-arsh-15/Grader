@@ -110,9 +110,10 @@ async def admin_dashboard(
             "submissions": submissions,
             "assignments": assignments,
             "stats": stats,
-            "active_page": "submissions",
+            "active_page": "dashboard",
         },
     )
+
 
 
 # ─────────────────────────────────────────────
@@ -763,8 +764,9 @@ async def submission_report(
 
     return templates.TemplateResponse(
         "admin/report.html",
-        {"request": request, "user": user, "submission": submission, "active_page": "submissions"},
+        {"request": request, "user": user, "submission": submission, "active_page": "dashboard"},
     )
+
 
 
 @router.post("/api/admin/submissions/{submission_id}/grade")

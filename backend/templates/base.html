@@ -26,8 +26,8 @@
 
       {% if user.role.value == 'admin' %}
       <nav class="nav-links">
-        <a href="/admin/dashboard" class="nav-link {% if active_page == 'submissions' %}active{% endif %}">
-          <span class="nav-icon">📊</span> Submissions
+        <a href="/admin/dashboard" class="nav-link {% if active_page in ['dashboard', 'submissions'] %}active{% endif %}">
+          <span class="nav-icon">📊</span> Dashboard
         </a>
         <a href="/admin/assignments" class="nav-link {% if active_page == 'assignments' %}active{% endif %}">
           <span class="nav-icon">📁</span> Assignments
@@ -37,6 +37,7 @@
         </a>
       </nav>
       {% endif %}
+
     </div>
 
     <div class="navbar-right">

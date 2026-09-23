@@ -209,6 +209,19 @@
           <td style="text-align: center;">
             <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; flex-wrap: nowrap;">
               
+              <!-- Report Eye Action: If candidate has a graded submission, open report in same browser -->
+              {% for sub in cand.submissions %}
+                {% if sub.status.value == 'graded' %}
+                  <a 
+                    href="/admin/submissions/{{ sub.id }}/report" 
+                    class="btn-report-eye-action" 
+                    title="View Grading Report for {{ sub.assignment.title }}"
+                  >
+                    <span>👁️</span> <span>Report</span>
+                  </a>
+                {% endif %}
+              {% endfor %}
+
               <!-- Edit Candidate Button -->
               <button 
                 type="button" 
@@ -218,6 +231,7 @@
               >
                 <span>✏️</span> <span>Edit</span>
               </button>
+
 
               <!-- Send Email Button: Only active & rendered if candidate has an assigned assessment -->
               {% if cand.submissions %}

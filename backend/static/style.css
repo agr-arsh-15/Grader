@@ -841,6 +841,7 @@ tbody td {
   transition: all var(--transition);
   line-height: 1;
   font-family: inherit;
+  text-decoration: none !important;
 }
 .btn-edit-action:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -848,6 +849,34 @@ tbody td {
   color: #fff;
   transform: translateY(-1px);
 }
+
+.btn-report-eye-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem;
+  padding: 0.42rem 0.75rem;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7 !important;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap !important;
+  transition: all var(--transition);
+  line-height: 1;
+  font-family: inherit;
+  text-decoration: none !important;
+}
+.btn-report-eye-action:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
 
 .assigned-candidate-row {
   display: flex;
