@@ -295,9 +295,10 @@
             ⚡ Auto-Generated Credentials:
           </div>
           <div style="font-size: 0.85rem; color: #fff;">
-            Portal Username: <strong id="preview-portal-email" class="code-font" style="color: #67e8f9;">candidate_name@grader.com</strong><br/>
+            Portal Username: <strong id="preview-portal-email" class="code-font" style="color: #67e8f9;">c_candidate_name@grader.ai</strong><br/>
             Default Password: <strong id="preview-portal-pwd" class="code-font" style="color: #86efac;">Name@123</strong>
           </div>
+
         </div>
 
       </div>
@@ -373,7 +374,7 @@
   function updateLiveCredentialsPreview() {
     const rawName = document.getElementById('new-name').value.trim();
     if (!rawName) {
-      document.getElementById('preview-portal-email').textContent = 'candidate_name@grader.com';
+      document.getElementById('preview-portal-email').textContent = 'c_candidate_name@grader.ai';
       document.getElementById('preview-portal-pwd').textContent = 'Name@123';
       return;
     }
@@ -382,9 +383,10 @@
     const firstWord = rawName.split(/\s+/)[0].replace(/[^a-zA-Z0-9]/g, '');
     const capitalizedFirst = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
 
-    document.getElementById('preview-portal-email').textContent = `${slug}@grader.com`;
+    document.getElementById('preview-portal-email').textContent = `c_${slug}@grader.ai`;
     document.getElementById('preview-portal-pwd').textContent = `${capitalizedFirst}@123`;
   }
+
 
   function filterCandidates() {
     const query = document.getElementById('candidate-search').value.toLowerCase();

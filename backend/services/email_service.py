@@ -8,14 +8,15 @@ from typing import Optional
 
 def generate_candidate_portal_email(full_name: str) -> str:
     """
-    Generate standardized portal login email: candidate_name@grader.com.
-    e.g. 'Arsh Agrawal' -> 'arsh_agrawal@grader.com'
+    Generate standardized portal login email: c_candidate_name@grader.ai.
+    e.g. 'Arsh Agrawal' -> 'c_arsh_agrawal@grader.ai'
     """
     cleaned = full_name.strip().lower()
     slug = re.sub(r'[^a-z0-9]+', '_', cleaned).strip('_')
     if not slug:
         slug = "candidate"
-    return f"{slug}@grader.com"
+    return f"c_{slug}@grader.ai"
+
 
 
 def generate_candidate_default_password(full_name: str) -> str:
