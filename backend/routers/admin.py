@@ -265,11 +265,11 @@ async def create_candidate(
             "candidates": candidates,
             "assignments": assignments,
             "error": None,
-            "success": f"Candidate '{cleaned_name}' created ({portal_email})! You can now assign tasks from the Assignments library.",
-            "new_credentials": new_credentials,
+            "success": f"Candidate '{cleaned_name}' created successfully ({portal_email})!",
             "active_page": "candidates",
         },
     )
+
 
 
 @router.post("/admin/candidates/{candidate_id}/delete", response_class=HTMLResponse)

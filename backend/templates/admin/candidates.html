@@ -17,59 +17,17 @@
   </div>
 </div>
 
-{% if new_credentials %}
-<div class="credentials-card">
-  <div class="credentials-header">
-    <div class="credentials-icon">👤</div>
-    <div style="flex: 1;">
-      <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff;">
-        Candidate Created Successfully
-      </h3>
-      <p style="font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-top: 3px;">
-        Account created for <strong>{{ new_credentials.full_name }}</strong>. Next step: Assign an assessment from the <a href="/admin/assignments" style="color:var(--accent-light); font-weight:600; text-decoration:underline;">Assignment Library</a>.
-      </p>
-    </div>
-  </div>
-
-  <div class="credentials-box">
-    <div class="credential-item">
-      <span class="credential-label">Candidate Name</span>
-      <span class="credential-value">{{ new_credentials.full_name }}</span>
-    </div>
-    <div class="credential-item">
-      <span class="credential-label">Portal Login Username</span>
-      <span class="credential-value code-font" id="cred-email" style="color:#a5b4fc;">{{ new_credentials.email }}</span>
-    </div>
-    <div class="credential-item">
-      <span class="credential-label">Default Password</span>
-      <span class="credential-value code-font" id="cred-password" style="color:#86efac;">{{ new_credentials.password }}</span>
-    </div>
-    <div class="credential-item">
-      <span class="credential-label">Contact / Notification Email</span>
-      <span class="credential-value" id="cred-contact">{{ new_credentials.contact_email }}</span>
-    </div>
-  </div>
-
-  <div class="credentials-actions">
-    <button type="button" class="btn btn-secondary btn-sm" onclick="copyText('{{ new_credentials.password }}', 'Password copied!')">
-      🔑 Copy Password
-    </button>
-    <button type="button" class="btn btn-secondary btn-sm" onclick="copyFullCredentials()">
-      📋 Copy Login Credentials
-    </button>
-    <a href="/admin/assignments" class="btn btn-primary btn-sm">
-      📁 Go to Assignment Library &rarr;
-    </a>
-  </div>
+{% if error %}
+<div class="alert alert-error">
+  <span>⚠️</span> <span>{{ error }}</span>
+</div>
+{% endif %}
+{% if success %}
+<div class="alert alert-success">
+  <span>✅</span> <span>{{ success }}</span>
 </div>
 {% endif %}
 
-{% if error %}
-<div class="alert alert-error">{{ error }}</div>
-{% endif %}
-{% if success and not new_credentials %}
-<div class="alert alert-success">{{ success }}</div>
-{% endif %}
 
 <!-- Stats overview -->
 <div class="stats-row">

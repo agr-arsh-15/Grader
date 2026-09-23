@@ -66,7 +66,25 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+
+  // ── Auto-dismiss alert messages after 3.5 seconds ─────────────────
+  document.querySelectorAll('.alert-success').forEach(alert => {
+    setTimeout(() => {
+      alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease, max-height 0.4s ease, margin 0.4s ease, padding 0.4s ease';
+      alert.style.opacity = '0';
+      alert.style.transform = 'translateY(-6px)';
+      alert.style.maxHeight = '0';
+      alert.style.marginTop = '0';
+      alert.style.marginBottom = '0';
+      alert.style.paddingTop = '0';
+      alert.style.paddingBottom = '0';
+      alert.style.overflow = 'hidden';
+      setTimeout(() => alert.remove(), 400);
+    }, 3500);
+  });
 });
+
 
 // ── Clipboard Copy Helper ─────────────────────────────────────────
 async function copyText(text, successMessage = 'Copied to clipboard!') {
