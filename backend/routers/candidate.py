@@ -64,6 +64,7 @@ async def candidate_dashboard(
     )
 
 
+@router.get("/candidate/submissions/{submission_id}", response_class=HTMLResponse)
 @router.get("/candidate/submissions/{submission_id}/submit", response_class=HTMLResponse)
 async def submit_page(
     request: Request,
@@ -71,6 +72,7 @@ async def submit_page(
     db: AsyncSession = Depends(get_db),
     user=Depends(require_candidate_page),
 ):
+
     if isinstance(user, RedirectResponse):
         return user
 

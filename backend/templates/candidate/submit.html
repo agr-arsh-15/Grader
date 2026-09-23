@@ -1,71 +1,111 @@
 {% extends "base.html" %}
 
-{% block title %}Upload Submission — {{ submission.assignment.title }} — Grading Portal{% endblock %}
+{% block title %}{{ submission.assignment.title }} — Assessment Workspace — Grading Portal{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div>
-    <h1 class="page-title">Submit Assessment</h1>
-    <p class="text-muted text-small mt-1">Package: <strong style="color:#fff;">{{ submission.assignment.title }}</strong></p>
+    <div class="flex items-center gap-2 mb-1 flex-wrap">
+      <h1 class="page-title" style="margin-bottom: 0;">{{ submission.assignment.title }}</h1>
+      <span class="badge badge-{{ submission.status.value }}" style="font-size: 0.75rem; padding: 3px 10px;">
+        {{ submission.status.value|capitalize }}
+      </span>
+    </div>
+    <p class="text-muted text-small">
+      Assessment Workspace &bull; Due: <strong style="color: #fca5a5;">{{ submission.due_at.strftime('%b %d, %Y at %H:%M UTC') }}</strong>
+    </p>
   </div>
-  <a href="/candidate/dashboard" class="btn btn-secondary">← Back to Hub</a>
+  <a href="/candidate/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
 </div>
 
 {% if error %}
-<div class="alert alert-error">{{ error }}</div>
+<div class="alert alert-error">
+  <span>⚠️</span> <span>{{ error }}</span>
+</div>
 {% endif %}
 
-<div class="card" style="max-width: 720px; margin: 0 auto;">
+<div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 960px; margin: 0 auto;">
 
-  <div class="submission-notice-banner">
+  <!-- Section 1: Assessment Description & Instructions -->
+  <div class="card">
+    <div class="card-title flex items-center gap-2" style="margin-bottom: 0.75rem;">
+      <span>📋</span> Task Description &amp; Instructions
+    </div>
+    {% if submission.assignment.description %}
+    <div class="task-brief-body" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem 1.5rem; font-size: 0.92rem; color: var(--text-main); line-height: 1.7; white-space: pre-wrap;">{{ submission.assignment.description }}</div>
+    {% else %}
+    <p class="text-muted text-small">No additional instructions provided for this assessment.</p>
+    {% endif %}
+  </div>
+
+  <!-- Section 2: Step 1 - Download Starter Codebase -->
+  <div class="card" style="border-color: rgba(99, 102, 241, 0.35); background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
       <div>
-        <span style="font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Deadline</span>
-        <div style="font-size: 1rem; font-weight:700; color:#fff;">{{ submission.due_at.strftime('%b %d, %Y %H:%M UTC') }}</div>
+        <div style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem;">
+          Step 1: Download Starter Package
+        </div>
+        <p class="text-muted text-small" style="margin-bottom: 0;">
+          Download the project repository archive (.zip) and extract it on your local machine to begin.
+        </p>
       </div>
-      <div>
-        <span class="badge badge-{{ submission.status.value }}">{{ submission.status.value|capitalize }}</span>
-      </div>
+      <a href="/candidate/assignments/{{ submission.assignment_id }}/download" class="btn btn-secondary" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18);">
+        <span>⬇️</span> <span>Download Starter Code (.zip)</span>
+      </a>
     </div>
   </div>
 
-  <form action="/candidate/submissions/{{ submission.id }}/submit" method="POST" enctype="multipart/form-data" id="submit-form">
+  <!-- Section 3: Step 2 - Upload Solution & AI Session Logs -->
+  <div class="card">
+    <div class="card-title flex items-center gap-2" style="margin-bottom: 0.5rem;">
+      <span>🚀</span> Step 2: Upload Solution &amp; AI Prompt Logs
+    </div>
+    <p class="text-muted text-small mb-3">
+      Upload your fixed codebase (.zip) and all prompt session history logs exported from your AI tools (Claude, Cursor, Copilot, ChatGPT, etc.).
+    </p>
 
-    <div class="form-group mt-3">
-      <label class="form-label" for="code_zip">1. Fixed Code Archive (.zip) *</label>
-      <div class="file-dropzone" onclick="document.getElementById('code_zip').click()">
-        <div class="file-dropzone-icon">💻</div>
-        <div class="file-dropzone-text">Click or drag your fixed project .zip file</div>
-        <div class="file-dropzone-hint" id="code-zip-hint">Upload complete project root containing fixes (Max 50 MB)</div>
-        <input id="code_zip" type="file" name="code_zip" accept=".zip" required style="display:none;" onchange="updateSingleFileHint(this, 'code-zip-hint')" />
+    {% if submission.submitted_at %}
+    <div class="alert alert-info mb-3" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+      <div>
+        <strong>✅ Previous Submission Recorded:</strong> {{ submission.submitted_at.strftime('%b %d, %Y at %H:%M UTC') }}
       </div>
+      <span class="text-small" style="color: var(--text-dim);">You can upload again before deadline to update.</span>
     </div>
+    {% endif %}
 
-    <div class="form-group mt-3">
-      <label class="form-label" for="log_files">2. AI Session Logs (.txt, .md, .json, .log) *</label>
-      <div class="file-dropzone" onclick="document.getElementById('log_files').click()">
-        <div class="file-dropzone-icon">📜</div>
-        <div class="file-dropzone-text">Click or drag AI conversation / prompt log files</div>
-        <div class="file-dropzone-hint" id="log-files-hint">Select one or multiple log files from Cursor, ChatGPT, Claude, etc.</div>
-        <input id="log_files" type="file" name="log_files" accept=".txt,.md,.json,.log" multiple required style="display:none;" onchange="updateMultiFileHint(this, 'log-files-hint')" />
+    <form action="/candidate/submissions/{{ submission.id }}/submit" method="POST" enctype="multipart/form-data" id="submit-form">
+      <div class="form-group">
+        <label class="form-label" for="code_zip">1. Fixed Codebase Archive (.zip) *</label>
+        <div class="file-dropzone" onclick="document.getElementById('code_zip').click()">
+          <div class="file-dropzone-icon">📦</div>
+          <div class="file-dropzone-text">Click or drag your fixed project .zip file</div>
+          <div class="file-dropzone-hint" id="code-zip-hint">Complete project zip containing your bug fixes and code updates</div>
+          <input id="code_zip" type="file" name="code_zip" accept=".zip" required style="display:none;" onchange="updateSingleFileHint(this, 'code-zip-hint')" />
+        </div>
       </div>
-      <div class="form-hint" style="margin-top: 0.5rem;">
-        💡 <em>Tip: You can select multiple files at once. These logs are analyzed for problem breakdown, iterative refinement, and AI independence.</em>
+
+      <div class="form-group mt-3">
+        <label class="form-label" for="log_files">2. AI Session Logs (.txt, .md, .json, .log) *</label>
+        <div class="file-dropzone" onclick="document.getElementById('log_files').click()">
+          <div class="file-dropzone-icon">📜</div>
+          <div class="file-dropzone-text">Click or drag AI prompt and session log files</div>
+          <div class="file-dropzone-hint" id="log-files-hint">Select one or multiple exported conversation log files</div>
+          <input id="log_files" type="file" name="log_files" accept=".txt,.md,.json,.log" multiple required style="display:none;" onchange="updateMultiFileHint(this, 'log-files-hint')" />
+        </div>
+        <div class="form-hint" style="margin-top: 0.4rem;">
+          💡 <em>Tip: You can select multiple files at once. These logs are analyzed for problem breakdown, verification habits, and prompt effectiveness.</em>
+        </div>
       </div>
-    </div>
 
-    <div class="info-callout mt-3">
-      <span>ℹ️</span>
-      <span>You can re-submit your files anytime before the deadline. New uploads will replace previous versions.</span>
-    </div>
+      <div style="margin-top: 1.75rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <a href="/candidate/dashboard" class="btn btn-secondary">Cancel</a>
+        <button id="submit-btn" type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.95rem;">
+          🚀 {% if submission.submitted_at %}Update &amp; Re-submit Solution{% else %}Complete &amp; Submit Assessment{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
 
-    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
-      <a href="/candidate/dashboard" class="btn btn-secondary">Cancel</a>
-      <button id="submit-btn" type="submit" class="btn btn-primary">
-        🚀 Complete &amp; Upload Submission
-      </button>
-    </div>
-  </form>
 </div>
 {% endblock %}
 
