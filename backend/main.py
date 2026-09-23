@@ -29,11 +29,32 @@ app.add_middleware(ErrorHandlerMiddleware)
 
 # ── Static files & templates ────────────────────────────────────────────────
 _static_dir = Path(__file__).parent / "static"
-_static_dir.mkdir(exist_ok=True)
-app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
+try:
+    _static_dir.mkdir(exist_ok=True)
+except OSError:
+    pass
+
+if _static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
 
 # Ensure upload directory exists
-Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
+try:
+    Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass
+
+
+@app.on_event("startup")
+async def on_startup():
+    try:
+        from backend.database import Base, engine
+        import backend.models  # noqa: F401 - ensure all models are registered
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logging.info("Database schemas verified/created.")
+    except Exception as e:
+        logging.warning(f"Database table auto-initialization skipped or failed: {e}")
+
 
 # ── Routers ─────────────────────────────────────────────────────────────────
 app.include_router(auth_router)

@@ -28,12 +28,15 @@ from backend.models.assignment import Assignment
 from backend.models.grading_result import GradingResult
 from backend.models.submission import Submission, SubmissionStatus
 from backend.models.user import User, UserRole
-from backend.services.auth_service import hash_password
+from pathlib import Path
+
 from backend.services.email_service import (
     compose_assessment_email_text,
     generate_candidate_default_password,
     generate_candidate_portal_email,
 )
+
+
 from backend.services.file_service import (
     get_assignment_zip_path,
     save_assignment_zip,
@@ -42,7 +45,10 @@ from backend.services.file_service import (
 from backend.services.grading_client import GradingServiceError, trigger_grading
 
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+
 
 
 # ─────────────────────────────────────────────

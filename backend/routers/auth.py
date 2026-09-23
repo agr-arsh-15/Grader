@@ -5,12 +5,16 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from pathlib import Path
+
 from backend.database import get_db
 from backend.models.user import User
 from backend.services.auth_service import create_access_token, verify_password
 
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
 
 
 @router.get("/login", response_class=HTMLResponse)

@@ -28,9 +28,13 @@ from backend.services.file_service import (
     save_log_file,
     save_submission_code,
 )
+from pathlib import Path
+
 
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
 
 
 # ─────────────────────────────────────────────
