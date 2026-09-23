@@ -1204,47 +1204,242 @@ tbody td {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* ── Candidate Hub Specifics ─────────────────────────────────── */
-.guidance-banner {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%);
+/* ── Candidate Portal Modern Design System ──────────────────────── */
+.candidate-hero-header {
+
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.14) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(6, 182, 212, 0.06) 100%);
   border: 1px solid rgba(99, 102, 241, 0.3);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  display: flex;
-  gap: 1.25rem;
-}
-.guidance-icon {
-  font-size: 1.75rem;
-}
-
-.assignment-candidate-card {
-  transition: border-color var(--transition);
-}
-.assignment-candidate-card:hover {
-  border-color: var(--border-light);
-}
-
-.assignment-candidate-header {
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.candidate-action-buttons {
+.candidate-hero-content {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  align-items: flex-end;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.candidate-hero-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
   flex-shrink: 0;
 }
 
-.candidate-meta-strip {
+.candidate-hero-metrics {
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  font-size: 0.82rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metric-pill {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+.metric-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+.metric-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* 4-Step Workflow Grid */
+.workflow-steps-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.workflow-step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.25rem 1.4rem;
+  position: relative;
+  transition: transform var(--transition), border-color var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.workflow-step-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.workflow-step-num {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  opacity: 0.6;
+}
+
+.workflow-step-icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.workflow-step-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+
+.workflow-step-desc {
+  font-size: 0.8rem;
   color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Candidate Task Cards */
+.candidate-task-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.candidate-task-card:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+
+.candidate-task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.candidate-task-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.task-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.candidate-task-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.candidate-deadline-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+}
+.deadline-icon {
+  font-size: 1.2rem;
+}
+.deadline-info {
+  display: flex;
+  flex-direction: column;
+}
+.deadline-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: #fca5a5;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.deadline-time {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.candidate-task-body {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 1.1rem 1.35rem;
+}
+.task-brief-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+.task-brief-text {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.candidate-task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding-top: 0.75rem;
+}
+
+.candidate-task-status-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.candidate-task-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .submission-notice-banner {
@@ -1266,6 +1461,7 @@ tbody td {
   font-size: 0.84rem;
   color: var(--text-muted);
 }
+
 
 /* ── Login Page Aesthetics ───────────────────────────────────── */
 .login-body {

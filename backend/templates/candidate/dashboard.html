@@ -3,71 +3,146 @@
 {% block title %}My Assessments — Grading Portal{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Candidate Assessment Hub</h1>
-    <p class="text-muted text-small mt-1">Welcome! Complete your assigned coding assessments using your preferred AI coding tools.</p>
+<!-- Candidate Welcome Header -->
+<div class="candidate-hero-header">
+  <div class="candidate-hero-content">
+    <div class="candidate-hero-avatar">
+      {{ user.email[:2].upper() }}
+    </div>
+    <div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <h1 class="page-title" style="margin-bottom: 0;">Candidate Assessment Hub</h1>
+        <span class="role-badge role-candidate" style="font-size: 0.72rem; padding: 3px 8px;">CANDIDATE PORTAL</span>
+      </div>
+      <p class="text-muted text-small mt-1">
+        Logged in as <strong style="color: #fff;">{{ user.email }}</strong>. Complete your assigned coding tasks using your preferred AI coding tools.
+      </p>
+    </div>
+  </div>
+  <div class="candidate-hero-metrics">
+    <div class="metric-pill">
+      <span class="metric-label">Assigned Tasks</span>
+      <span class="metric-val">{{ submissions|length }}</span>
+    </div>
   </div>
 </div>
 
-<!-- Guidance card -->
-<div class="guidance-banner mb-3">
-  <div class="guidance-icon">💡</div>
-  <div>
-    <h3 style="font-size:0.95rem; font-weight:700; color:#fff; margin-bottom:4px;">Workflow Instructions</h3>
-    <ol style="font-size:0.85rem; color:var(--text-muted); padding-left:1.2rem; line-height:1.6;">
-      <li><strong>Download</strong> your assigned assessment package (.zip) below and extract it locally.</li>
-      <li><strong>Fix bugs &amp; implement solutions</strong> using your choice of AI tools (Cursor, Claude, Copilot, ChatGPT, etc.).</li>
-      <li><strong>Export your AI chat / prompt logs</strong> (as .txt, .md, .json, or .log files).</li>
-      <li><strong>Upload</strong> your fixed codebase archive along with your AI session logs before the deadline.</li>
-    </ol>
+<!-- Standardized 4-Step Workflow Guidelines -->
+<div class="workflow-steps-container mb-4">
+  <div class="workflow-step-card">
+    <div class="workflow-step-num">01</div>
+    <div class="workflow-step-icon">📦</div>
+    <div class="workflow-step-title">Download Package</div>
+    <div class="workflow-step-desc">Download and extract the starter codebase package to your local environment.</div>
+  </div>
+
+  <div class="workflow-step-card">
+    <div class="workflow-step-num">02</div>
+    <div class="workflow-step-icon">🤖</div>
+    <div class="workflow-step-title">Code with AI</div>
+    <div class="workflow-step-desc">Fix bugs and implement solutions using your preferred tools (Claude, Cursor, Copilot, ChatGPT).</div>
+  </div>
+
+  <div class="workflow-step-card">
+    <div class="workflow-step-num">03</div>
+    <div class="workflow-step-icon">📝</div>
+    <div class="workflow-step-title">Export AI Logs</div>
+    <div class="workflow-step-desc">Save your full AI conversation / prompt session history as <code class="code-font" style="color:#a5b4fc;">.txt</code>, <code class="code-font" style="color:#a5b4fc;">.md</code>, or <code class="code-font" style="color:#a5b4fc;">.json</code>.</div>
+  </div>
+
+  <div class="workflow-step-card">
+    <div class="workflow-step-num">04</div>
+    <div class="workflow-step-icon">🚀</div>
+    <div class="workflow-step-title">Submit &amp; Evaluate</div>
+    <div class="workflow-step-desc">Upload your fixed codebase archive along with your AI session logs before the deadline.</div>
   </div>
 </div>
 
+<!-- Assigned Assessments List -->
 {% if submissions %}
-<div style="display: flex; flex-direction: column; gap: 1.25rem;">
-  {% for sub in submissions %}
-  <div class="card assignment-candidate-card">
-    <div class="assignment-candidate-header">
-      <div style="flex: 1;">
-        <div class="flex items-center gap-2 mb-1 flex-wrap">
-          <h2 style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ sub.assignment.title }}</h2>
-          <span class="badge badge-{{ sub.status.value }}">{{ sub.status.value|capitalize }}</span>
-        </div>
-        
-        {% if sub.assignment.description %}
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.6; white-space: pre-wrap;">{{ sub.assignment.description }}</p>
-        {% endif %}
+<div class="candidate-assessments-list">
+  <div class="section-heading mb-3">
+    <h2 class="card-title" style="margin-bottom: 0;">Your Assigned Assessments ({{ submissions|length }})</h2>
+  </div>
 
-        <div class="candidate-meta-strip mt-2">
-          <span>📅 Deadline: <strong style="color: #fff;">{{ sub.due_at.strftime('%b %d, %Y %H:%M UTC') }}</strong></span>
-          {% if sub.submitted_at %}
-          <span>✅ Submitted: <strong style="color: var(--success);">{{ sub.submitted_at.strftime('%b %d, %Y %H:%M UTC') }}</strong></span>
-          {% endif %}
+  {% for sub in submissions %}
+  <div class="card candidate-task-card mb-3">
+    <!-- Task Header -->
+    <div class="candidate-task-header">
+      <div class="candidate-task-title-wrap">
+        <div class="task-icon-box">💻</div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="candidate-task-title">{{ sub.assignment.title }}</h3>
+            <span class="badge badge-{{ sub.status.value }}">{{ sub.status.value|capitalize }}</span>
+          </div>
+          <div class="text-muted text-small" style="margin-top: 3px;">
+            Assessment ID: <span class="code-font" style="color: var(--text-dim);">{{ sub.id | string }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="candidate-action-buttons">
-        <!-- Download starter zip -->
-        <a href="/candidate/assignments/{{ sub.assignment_id }}/download" class="btn btn-secondary">
-          <span>⬇️</span> Download Starter Code (.zip)
-        </a>
+      <div class="candidate-deadline-badge">
+        <span class="deadline-icon">📅</span>
+        <div class="deadline-info">
+          <span class="deadline-label">Submission Deadline</span>
+          <span class="deadline-time">{{ sub.due_at.strftime('%b %d, %Y • %H:%M UTC') }}</span>
+        </div>
+      </div>
+    </div>
 
-        <!-- Upload submission -->
-        {% if sub.status.value in ['pending', 'submitted'] %}
-        <a href="/candidate/submissions/{{ sub.id }}/submit" class="btn btn-primary">
-          <span>🚀</span> {% if sub.status.value == 'submitted' %}Re-upload Solution &amp; Logs{% else %}Upload Solution &amp; Logs{% endif %}
-        </a>
+    <!-- Task Description / Brief -->
+    {% if sub.assignment.description %}
+    <div class="candidate-task-body mt-3">
+      <div class="task-brief-label">Task Instructions &amp; Overview:</div>
+      <div class="task-brief-text">{{ sub.assignment.description }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Status & Action Bar -->
+    <div class="candidate-task-footer mt-3">
+      <div class="candidate-task-status-info">
+        {% if sub.status.value == 'graded' and sub.grading_result %}
+          <div class="flex items-center gap-2">
+            <span class="badge badge-graded">✓ Evaluation Complete</span>
+            <span class="text-small" style="color: var(--text-muted);">
+              Graded Score: <strong style="color: #fff;">{{ "%.1f"|format(sub.grading_result.overall_score) }}%</strong>
+            </span>
+          </div>
+        {% elif sub.status.value == 'grading' %}
+          <div class="grading-pulse-indicator">
+            <span class="spinner"></span> Automated evaluation in progress…
+          </div>
+        {% elif sub.status.value == 'submitted' %}
+          <div class="flex items-center gap-2">
+            <span class="badge badge-submitted">● Submission Received</span>
+            <span class="text-small" style="color: var(--text-dim);">
+              Submitted on {{ sub.submitted_at.strftime('%b %d, %Y at %H:%M UTC') if sub.submitted_at else 'recently' }}
+            </span>
+          </div>
+        {% else %}
+          <div class="flex items-center gap-2">
+            <span class="badge badge-pending">⏳ Pending Submission</span>
+            <span class="text-small" style="color: var(--text-dim);">Download starter code and start your work</span>
+          </div>
         {% endif %}
+      </div>
 
-        {% if sub.status.value == 'grading' %}
-        <div class="grading-pulse-indicator">
-          <span class="spinner"></span> Evaluation in progress…
-        </div>
+      <div class="candidate-task-actions">
+        <!-- Download Starter Zip Button -->
+        <a href="/candidate/assignments/{{ sub.assignment_id }}/download" class="btn btn-secondary btn-sm" title="Download the starter codebase package">
+          <span>⬇️</span> <span>Download Starter Code (.zip)</span>
+        </a>
+
+        <!-- Upload Submission Action Button -->
+        {% if sub.status.value in ['pending', 'submitted'] %}
+        <a href="/candidate/submissions/{{ sub.id }}/submit" class="btn btn-primary btn-sm" title="Upload your fixed codebase and AI logs">
+          <span>🚀</span> <span>{% if sub.status.value == 'submitted' %}Re-upload Solution &amp; Logs{% else %}Upload Solution &amp; Logs{% endif %}</span>
+        </a>
         {% elif sub.status.value == 'graded' %}
-        <div class="badge badge-graded" style="padding: 0.5rem 0.85rem; font-size: 0.8rem;">
-          ✓ Completed &amp; Evaluated
-        </div>
+        <button type="button" class="btn btn-secondary btn-sm" disabled style="opacity: 0.6; cursor: default;">
+          <span>✅</span> <span>Submitted &amp; Graded</span>
+        </button>
         {% endif %}
       </div>
     </div>
@@ -78,8 +153,8 @@
 <div class="card">
   <div class="empty-state">
     <div class="empty-state-icon">📭</div>
-    <h3 style="font-size:1.1rem; font-weight:600; color:#fff; margin-bottom:0.5rem;">No Active Assessments</h3>
-    <p class="empty-state-text">You currently do not have any assessments assigned. Please contact your hiring coordinator or check back later.</p>
+    <h3 style="font-size:1.15rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">No Active Assessments</h3>
+    <p class="empty-state-text">You currently do not have any active assessments assigned. Please check back later or contact your assessment coordinator.</p>
   </div>
 </div>
 {% endif %}
