@@ -501,7 +501,86 @@ async def create_assignment(
     )
 
 
+@router.get("/admin/assignments/{assignment_id}/edit", response_class=HTMLResponse)
+async def edit_assignment_page(
+    request: Request,
+    assignment_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(require_admin_page),
+):
+    if isinstance(user, RedirectResponse):
+        return user
+
+    assignment = await db.get(Assignment, assignment_id)
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+
+    return templates.TemplateResponse(
+        "admin/edit_assignment.html",
+        {
+            "request": request,
+            "user": user,
+            "assignment": assignment,
+            "error": None,
+            "active_page": "assignments",
+        },
+    )
+
+
+@router.post("/admin/assignments/{assignment_id}/edit")
+async def edit_assignment(
+    request: Request,
+    assignment_id: uuid.UUID,
+    title: str = Form(...),
+    description: str = Form(""),
+    rubric_text: str = Form(""),
+    assignment_zip: Optional[UploadFile] = File(None),
+    bug_manifest: Optional[UploadFile] = File(None),
+    db: AsyncSession = Depends(get_db),
+    user=Depends(require_admin_page),
+):
+    if isinstance(user, RedirectResponse):
+        return user
+
+    assignment = await db.get(Assignment, assignment_id)
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+
+    assignment.title = title.strip()
+    assignment.description = description.strip()
+    assignment.rubric_text = rubric_text.strip()
+
+    try:
+        if assignment_zip and assignment_zip.filename:
+            zip_path = await save_assignment_zip(assignment_zip, assignment_id)
+            assignment.zip_file_path = zip_path
+
+        if bug_manifest and bug_manifest.filename:
+            manifest_path = await save_bug_manifest(bug_manifest, assignment_id)
+            assignment.bug_manifest_path = manifest_path
+    except HTTPException as exc:
+        return templates.TemplateResponse(
+            "admin/edit_assignment.html",
+            {
+                "request": request,
+                "user": user,
+                "assignment": assignment,
+                "error": exc.detail,
+                "active_page": "assignments",
+            },
+            status_code=exc.status_code,
+        )
+
+    await db.commit()
+
+    return RedirectResponse(
+        url="/admin/assignments",
+        status_code=302,
+    )
+
+
 @router.get("/admin/assignments/{assignment_id}/download-zip")
+
 async def download_assignment_zip(
     assignment_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),

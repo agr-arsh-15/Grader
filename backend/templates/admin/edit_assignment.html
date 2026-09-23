@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Assessment — {{ assignment.title }} — Grading Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Edit Assessment Package</h1>
+    <p class="text-muted text-small mt-1">Update assessment title, candidate instructions, evaluation rubric, or uploaded codebase package.</p>
+  </div>
+  <a href="/admin/assignments" class="btn btn-secondary">← Back to Assignments</a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">
+  <span>⚠️</span> <span>{{ error }}</span>
+</div>
+{% endif %}
+
+<div class="card" style="max-width: 760px; margin: 0 auto;">
+  <form action="/admin/assignments/{{ assignment.id }}/edit" method="POST" enctype="multipart/form-data" id="edit-form">
+
+    <div class="form-group">
+      <label class="form-label" for="title">Assessment Title *</label>
+      <input id="title" type="text" name="title" class="form-control"
+             value="{{ assignment.title }}" required autofocus />
+      <div class="form-hint">A clear, descriptive name visible to candidates and evaluators.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="description">Candidate Instructions / Overview</label>
+      <textarea id="description" name="description" class="form-control"
+                rows="5" placeholder="Explain the background scenario, goals, and setup steps for the candidate…">{{ assignment.description }}</textarea>
+      <p class="form-hint">This text is shown on the candidate's assessment workspace. Do not reveal internal bug locations.</p>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="rubric_text">LLM Evaluation Rubric (Admin Internal)</label>
+      <textarea id="rubric_text" name="rubric_text" class="form-control"
+                rows="4" placeholder="Specify criteria for assessing the candidate's AI prompts, problem solving approach, verification habits, and independence…">{{ assignment.rubric_text }}</textarea>
+      <p class="form-hint">Used by the AI grading engine to review candidate session logs and prompt strategy.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+      <div class="form-group">
+        <label class="form-label" for="assignment_zip">Replace Codebase Archive (.zip)</label>
+        <div class="file-dropzone" onclick="document.getElementById('assignment_zip').click()">
+          <div class="file-dropzone-icon">📦</div>
+          <div class="file-dropzone-text">Click to replace .zip archive</div>
+          <div class="file-dropzone-hint" id="zip-hint">Optional: Leave empty to keep existing codebase</div>
+          <input id="assignment_zip" type="file" name="assignment_zip" accept=".zip" style="display:none;" onchange="updateFileHint(this, 'zip-hint')" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="bug_manifest">Replace Bug Manifest (.json)</label>
+        <div class="file-dropzone" onclick="document.getElementById('bug_manifest').click()">
+          <div class="file-dropzone-icon">🔍</div>
+          <div class="file-dropzone-text">Click to replace manifest JSON</div>
+          <div class="file-dropzone-hint" id="manifest-hint">Optional: Leave empty to keep existing manifest</div>
+          <input id="bug_manifest" type="file" name="bug_manifest" accept=".json" style="display:none;" onchange="updateFileHint(this, 'manifest-hint')" />
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 1.75rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+      <a href="/admin/assignments" class="btn btn-secondary">Cancel</a>
+      <button id="save-btn" type="submit" class="btn btn-primary">
+        💾 Save Changes
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function updateFileHint(input, hintId) {
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      document.getElementById(hintId).textContent = `✅ New file selected: ${file.name} (${sizeMB} MB)`;
+      document.getElementById(hintId).style.color = 'var(--success)';
+    }
+  }
+
+  document.getElementById('edit-form').addEventListener('submit', function() {
+    setTimeout(() => {
+      const btn = document.getElementById('save-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Saving changes…';
+      }
+    }, 10);
+  });
+</script>
+{% endblock %}

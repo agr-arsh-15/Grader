@@ -150,7 +150,12 @@
           </td>
 
           <td style="text-align: center;">
-            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: nowrap;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; flex-wrap: nowrap;">
+              <!-- Edit Assignment -->
+              <a href="/admin/assignments/{{ asgn.id }}/edit" class="btn-edit-action" title="Edit assessment details and rubric">
+                <span>✏️</span> <span>Edit</span>
+              </a>
+
               <!-- Assign Candidates -->
               <a href="/admin/assignments/{{ asgn.id }}/assign" class="btn btn-primary btn-sm" title="Assign this assessment to candidates">
                 👥 Assign
@@ -164,6 +169,7 @@
               </form>
             </div>
           </td>
+
         </tr>
 
         <!-- Modal: Assigned Candidates List for this Assignment -->
