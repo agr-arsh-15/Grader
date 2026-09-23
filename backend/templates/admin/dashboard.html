@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Submissions Dashboard — Grading Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Assessment Operations</h1>
+    <p class="text-muted text-small mt-1">Real-time candidate submissions, automated evaluation trigger, and grading reports.</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="/admin/assignments" class="btn btn-secondary">
+      <span>📁</span> Assignment Library
+    </a>
+    <a href="/admin/candidates" class="btn btn-primary">
+      <span>👥</span> Manage Candidates
+    </a>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon-wrapper purple">📊</div>
+    <div>
+      <div class="stat-value">{{ stats.total_submissions if stats else submissions|length }}</div>
+      <div class="stat-label">Total Submissions</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper yellow">⚡</div>
+    <div>
+      <div class="stat-value">{{ stats.submitted_count if stats else 0 }}</div>
+      <div class="stat-label">Awaiting Grading</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper blue">🔄</div>
+    <div>
+      <div class="stat-value">{{ stats.grading_count if stats else 0 }}</div>
+      <div class="stat-label">Grading In Progress</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper green">🎯</div>
+    <div>
+      <div class="stat-value">{{ stats.graded_count if stats else 0 }}</div>
+      <div class="stat-label">Graded & Completed</div>
+    </div>
+  </div>
+</div>
+
+<!-- Submissions Section -->
+<div class="card mt-3">
+  <div class="card-header-flex">
+    <div>
+      <h2 class="card-title" style="margin-bottom: 0;">Candidate Submissions</h2>
+    </div>
+    <div class="flex gap-2 items-center flex-wrap">
+      <div class="filter-tabs">
+        <button type="button" class="filter-tab active" onclick="filterStatus('all', this)">All</button>
+        <button type="button" class="filter-tab" onclick="filterStatus('submitted', this)">Needs Grading</button>
+        <button type="button" class="filter-tab" onclick="filterStatus('graded', this)">Graded</button>
+        <button type="button" class="filter-tab" onclick="filterStatus('pending', this)">Pending</button>
+      </div>
+      <div class="search-input-wrap">
+        <input type="text" id="sub-search" class="form-control form-control-sm" placeholder="Search candidate/task…" onkeyup="filterSubmissions()" />
+      </div>
+    </div>
+  </div>
+
+  {% if submissions %}
+  <div class="table-wrap mt-2">
+    <table id="submissions-table">
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Assessment</th>
+          <th>Status</th>
+          <th>Score</th>
+          <th>Due Deadline</th>
+          <th>Submitted Time</th>
+          <th style="text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr class="sub-row" data-status="{{ sub.status.value }}" data-text="{{ sub.candidate.email.lower() }} {{ sub.assignment.title.lower() }}">
+          <td>
+            <div class="candidate-cell">
+              <div class="candidate-avatar">{{ sub.candidate.email[:2].upper() }}</div>
+              <div>
+                <div class="candidate-name">{{ sub.candidate.email }}</div>
+                <div class="text-muted text-small">{{ sub.candidate.role.value|capitalize }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 500; color: #fff;">{{ sub.assignment.title }}</div>
+            <div class="text-muted text-small">ID: {{ sub.id | string | truncate(10, True, '…') }}</div>
+          </td>
+          <td>
+            <span class="badge badge-{{ sub.status.value }}">
+              {{ sub.status.value|capitalize }}
+            </span>
+          </td>
+          <td>
+            {% if sub.status.value == 'graded' and sub.grading_result %}
+              <div class="score-pill-badge {% if sub.grading_result.overall_score >= 70 %}high{% elif sub.grading_result.overall_score >= 40 %}med{% else %}low{% endif %}">
+                {{ sub.grading_result.overall_score }}%
+              </div>
+            {% else %}
+              <span class="text-muted text-small">—</span>
+            {% endif %}
+          </td>
+          <td class="text-muted text-small">
+            <div>{{ sub.due_at.strftime('%b %d, %Y') }}</div>
+            <div style="font-size: 0.72rem; color: #6b7280;">{{ sub.due_at.strftime('%H:%M') }} UTC</div>
+          </td>
+          <td class="text-muted text-small">
+            {% if sub.submitted_at %}
+              <div>{{ sub.submitted_at.strftime('%b %d, %Y') }}</div>
+              <div style="font-size: 0.72rem; color: #6b7280;">{{ sub.submitted_at.strftime('%H:%M') }} UTC</div>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td style="text-align: right;">
+            {% if sub.status.value == 'submitted' %}
+              <button
+                class="btn btn-sm btn-primary btn-grade"
+                data-submission-id="{{ sub.id }}"
+                title="Trigger automated tests and AI rubric evaluation"
+              >⚡ Grade</button>
+            {% elif sub.status.value == 'graded' %}
+              <a href="/admin/submissions/{{ sub.id }}/report" class="btn btn-sm btn-success">
+                📊 Report
+              </a>
+            {% elif sub.status.value == 'grading' %}
+              <span class="grading-pulse-indicator">
+                <span class="spinner"></span> Grading…
+              </span>
+            {% else %}
+              <span class="badge badge-pending" style="opacity: 0.7;">Awaiting work</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📋</div>
+    <p class="empty-state-text">No candidate submissions recorded yet.</p>
+    <div class="flex gap-2 justify-center mt-2" style="justify-content:center;">
+      <a href="/admin/assignments/create" class="btn btn-primary">+ Create Assignment</a>
+      <a href="/admin/candidates" class="btn btn-secondary">+ Add Candidates</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Active Assignments List -->
+<div class="card mt-3">
+  <div class="card-header-flex">
+    <div>
+      <h2 class="card-title" style="margin-bottom:0;">Created Assignments ({{ assignments|length }})</h2>
+      <p class="text-muted text-small">Codebases with deliberately injected bugs & rubrics</p>
+    </div>
+    <a href="/admin/assignments/create" class="btn btn-secondary btn-sm">+ Create Assignment</a>
+  </div>
+
+  {% if assignments %}
+  <div class="table-wrap mt-2">
+    <table>
+      <thead>
+        <tr>
+          <th>Assessment Title</th>
+          <th>Description & Rubric</th>
+          <th>Created Date</th>
+          <th style="text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asgn in assignments %}
+        <tr>
+          <td>
+            <div style="font-weight: 600; color: #fff;">{{ asgn.title }}</div>
+            <div class="text-muted text-small">ID: {{ asgn.id | string | truncate(13, True, '…') }}</div>
+          </td>
+          <td>
+            <div class="text-small" style="max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted);">
+              {{ asgn.description or 'No description' }}
+            </div>
+          </td>
+          <td class="text-muted text-small">{{ asgn.created_at.strftime('%b %d, %Y') }}</td>
+          <td style="text-align: right;">
+            <a href="/admin/assignments/{{ asgn.id }}/assign" class="btn btn-sm btn-primary">
+              👥 Assign Candidates
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">📦</div>
+    <p class="empty-state-text">No assignments created yet.</p>
+    <a href="/admin/assignments/create" class="btn btn-primary mt-2">Create First Assignment</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let currentStatus = 'all';
+
+  function filterStatus(status, tabElem) {
+    currentStatus = status;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tabElem.classList.add('active');
+    applyFilters();
+  }
+
+  function filterSubmissions() {
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const query = (document.getElementById('sub-search')?.value || '').toLowerCase();
+    const rows = document.querySelectorAll('.sub-row');
+
+    rows.forEach(row => {
+      const rowStatus = row.getAttribute('data-status');
+      const rowText = row.getAttribute('data-text');
+
+      const matchesStatus = (currentStatus === 'all') || (rowStatus === currentStatus);
+      const matchesQuery = !query || rowText.includes(query);
+
+      row.style.display = (matchesStatus && matchesQuery) ? '' : 'none';
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — AI Assessment Grading Portal</title>
+  <meta name="description" content="Sign in to access your assessment tasks or manage coding assessments" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css?v=4.0" />
+</head>
+<body class="login-body">
+<div class="login-page">
+  <div class="login-glow-orb orb-1"></div>
+  <div class="login-glow-orb orb-2"></div>
+
+  <div class="login-box card">
+    <div class="login-logo">
+      <div class="login-logo-icon">⬡</div>
+      <h1 class="login-title">Grader<span class="brand-accent">.ai</span></h1>
+      <p class="login-subtitle">AI-Assisted Coding Assessment Platform</p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-error" role="alert">
+      <span>⚠️</span>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <form action="/auth/login" method="POST" id="login-form">
+      <div class="form-group">
+        <label class="form-label" for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          class="form-control"
+          placeholder="name@company.com"
+          required
+          autocomplete="email"
+          autofocus
+        />
+      </div>
+
+      <div class="form-group">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.4rem;">
+          <label class="form-label" for="password" style="margin-bottom:0;">Password</label>
+          <button type="button" class="btn-text" onclick="togglePasswordVisibility()" id="toggle-pwd-btn" style="font-size:0.75rem; color:var(--text-muted); background:none; border:none; cursor:pointer;">
+            Show
+          </button>
+        </div>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          class="form-control"
+          placeholder="••••••••••••"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button id="login-btn" type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.8rem; font-size:0.95rem; margin-top:0.5rem;">
+        Sign In to Portal →
+      </button>
+    </form>
+
+    <div class="login-test-accounts">
+      <div class="test-accounts-header">Quick Demo Credentials:</div>
+      <div class="test-accounts-grid">
+        <button type="button" class="test-account-chip" onclick="fillCreds('admin@grader.local', 'Admin@123!')">
+          <span class="chip-icon">👑</span>
+          <div class="chip-text">
+            <strong>Admin Account</strong>
+            <span>admin@grader.local</span>
+          </div>
+        </button>
+        <button type="button" class="test-account-chip" onclick="fillCreds('candidate@grader.local', 'Candidate@123!')">
+          <span class="chip-icon">👤</span>
+          <div class="chip-text">
+            <strong>Candidate Account</strong>
+            <span>candidate@grader.local</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function fillCreds(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+    showToast('Credentials filled for ' + email, 'info');
+  }
+
+  function togglePasswordVisibility() {
+    const input = document.getElementById('password');
+    const btn = document.getElementById('toggle-pwd-btn');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      input.type = 'password';
+      btn.textContent = 'Show';
+    }
+  }
+
+  document.getElementById('login-form').addEventListener('submit', function() {
+    setTimeout(function() {
+      const btn = document.getElementById('login-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Authenticating…';
+      }
+    }, 10);
+  });
+</script>
+<script src="/static/app.js"></script>
+</body>
+</html>

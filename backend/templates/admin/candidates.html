@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+{% block title %}Candidates Management — Grading Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Candidate Directory</h1>
+    <p class="text-muted text-small mt-1">
+      Manage candidate accounts, credentials, and track their assessment invitations.
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <button type="button" class="btn btn-primary" onclick="openModal('create-candidate-modal')">
+      <span style="font-size: 1.1rem; line-height: 1;">+</span> Add Candidate
+    </button>
+  </div>
+</div>
+
+{% if new_credentials %}
+<div class="credentials-card">
+  <div class="credentials-header">
+    <div class="credentials-icon">👤</div>
+    <div style="flex: 1;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff;">
+        Candidate Created Successfully
+      </h3>
+      <p style="font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-top: 3px;">
+        Account created for <strong>{{ new_credentials.full_name }}</strong>. Next step: Assign an assessment from the <a href="/admin/assignments" style="color:var(--accent-light); font-weight:600; text-decoration:underline;">Assignment Library</a>.
+      </p>
+    </div>
+  </div>
+
+  <div class="credentials-box">
+    <div class="credential-item">
+      <span class="credential-label">Candidate Name</span>
+      <span class="credential-value">{{ new_credentials.full_name }}</span>
+    </div>
+    <div class="credential-item">
+      <span class="credential-label">Portal Login Username</span>
+      <span class="credential-value code-font" id="cred-email" style="color:#a5b4fc;">{{ new_credentials.email }}</span>
+    </div>
+    <div class="credential-item">
+      <span class="credential-label">Default Password</span>
+      <span class="credential-value code-font" id="cred-password" style="color:#86efac;">{{ new_credentials.password }}</span>
+    </div>
+    <div class="credential-item">
+      <span class="credential-label">Contact / Notification Email</span>
+      <span class="credential-value" id="cred-contact">{{ new_credentials.contact_email }}</span>
+    </div>
+  </div>
+
+  <div class="credentials-actions">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="copyText('{{ new_credentials.password }}', 'Password copied!')">
+      🔑 Copy Password
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="copyFullCredentials()">
+      📋 Copy Login Credentials
+    </button>
+    <a href="/admin/assignments" class="btn btn-primary btn-sm">
+      📁 Go to Assignment Library &rarr;
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+{% if success and not new_credentials %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+<!-- Stats overview -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon-wrapper purple">👥</div>
+    <div>
+      <div class="stat-value">{{ candidates|length }}</div>
+      <div class="stat-label">Total Candidates</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon-wrapper blue">📝</div>
+    <div>
+      {% set total_assigned = namespace(count=0) %}
+      {% for c in candidates %}
+        {% set total_assigned.count = total_assigned.count + (c.submissions|length) %}
+      {% endfor %}
+      <div class="stat-value">{{ total_assigned.count }}</div>
+      <div class="stat-label">Assigned Assessments</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon-wrapper green">✅</div>
+    <div>
+      {% set graded_count = namespace(count=0) %}
+      {% for c in candidates %}
+        {% for s in c.submissions %}
+          {% if s.status.value == 'graded' %}
+            {% set graded_count.count = graded_count.count + 1 %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+      <div class="stat-value">{{ graded_count.count }}</div>
+      <div class="stat-label">Completed &amp; Graded</div>
+    </div>
+  </div>
+</div>
+
+<!-- Candidate table -->
+<div class="card mt-3">
+  <div class="card-header-flex">
+    <div>
+      <h2 class="card-title" style="margin-bottom: 0;">Registered Candidates</h2>
+    </div>
+    <div class="search-input-wrap">
+      <input type="text" id="candidate-search" class="form-control form-control-sm" placeholder="Search by name, email…" onkeyup="filterCandidates()" />
+    </div>
+  </div>
+
+  {% if not candidates %}
+  <div class="empty-state">
+    <div class="empty-state-icon">👤</div>
+    <p class="empty-state-text">No candidates registered yet. Click "Add Candidate" to get started.</p>
+    <button type="button" class="btn btn-primary mt-2" onclick="openModal('create-candidate-modal')">Add First Candidate</button>
+  </div>
+  {% else %}
+  <div class="table-wrap mt-2">
+    <table id="candidates-table">
+      <thead>
+        <tr>
+          <th style="text-align: left; width: 22%;">Candidate</th>
+          <th style="text-align: left; width: 23%;">Portal Login &amp; Contact</th>
+          <th style="text-align: left; width: 19%;">Assigned Assessment</th>
+          <th style="text-align: center; width: 11%;">Status</th>
+          <th style="text-align: center; width: 11%;">Deadline</th>
+          <th style="text-align: center; width: 14%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cand in candidates %}
+        <tr class="candidate-row" data-search="{{ (cand.full_name or '')|lower }} {{ cand.email.lower() }} {{ (cand.contact_email or '')|lower }}">
+          <td style="text-align: left;">
+            <div class="candidate-cell">
+              <div class="candidate-avatar">{{ (cand.full_name or cand.email)[:2].upper() }}</div>
+              <div>
+                <div class="candidate-name">{{ cand.full_name or 'Candidate' }}</div>
+                <div class="text-muted text-small">Created {{ cand.created_at.strftime('%b %d, %Y') }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="text-align: left;">
+            <div style="font-size:0.875rem;">
+              <span class="text-muted text-small">Username:</span>
+              <strong class="code-font" style="color:#a5b4fc;">{{ cand.email }}</strong>
+            </div>
+            {% if cand.contact_email %}
+            <div style="font-size:0.8rem; color: var(--text-dim); margin-top:2px;">
+              <span>Contact:</span> {{ cand.contact_email }}
+            </div>
+            {% endif %}
+          </td>
+          <td style="text-align: left;">
+            {% if not cand.submissions %}
+              <span class="text-muted text-small" style="opacity: 0.75;">None assigned</span>
+            {% else %}
+              {% for sub in cand.submissions %}
+                <div style="color: #fff; font-size: 0.88rem; font-weight: 600;">
+                  {{ sub.assignment.title }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          </td>
+          <td style="text-align: center;">
+            {% if not cand.submissions %}
+              <span class="badge badge-pending" style="font-size:0.68rem; opacity:0.75;">Unassigned</span>
+            {% else %}
+              {% for sub in cand.submissions %}
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                  <span class="badge badge-{{ sub.status.value }}" style="font-size:0.68rem; padding: 2px 8px;">
+                    {{ sub.status.value }}
+                  </span>
+                  {% if sub.status.value == 'graded' and sub.grading_result %}
+                    <a href="/admin/submissions/{{ sub.id }}/report" class="pill-report-link" style="margin-top: 2px;">
+                      📊 Score: {{ sub.grading_result.overall_score }}%
+                    </a>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% endif %}
+          </td>
+          <td style="text-align: center;">
+            {% if not cand.submissions %}
+              <span class="text-muted text-small">—</span>
+            {% else %}
+              {% for sub in cand.submissions %}
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                  <div style="font-size: 0.82rem; color: #fca5a5; font-weight: 600; white-space: nowrap;">
+                    📅 {{ sub.due_at.strftime('%b %d, %Y') }}
+                  </div>
+                  <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 1px;">
+                    {{ sub.due_at.strftime('%H:%M') }} UTC
+                  </div>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </td>
+          <td style="text-align: center;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; flex-wrap: nowrap;">
+              
+              <!-- Edit Candidate Button -->
+              <button 
+                type="button" 
+                class="btn-edit-action" 
+                title="Edit candidate profile"
+                onclick="openEditCandidateModal('{{ cand.id }}', '{{ (cand.full_name or '')|escape }}', '{{ cand.contact_email or '' }}', '{{ cand.email }}')"
+              >
+                <span>✏️</span> <span>Edit</span>
+              </button>
+
+              <!-- Send Email Button: Only active & rendered if candidate has an assigned assessment -->
+              {% if cand.submissions %}
+                {% set latest_sub = cand.submissions[0] %}
+                {% set cand_name = cand.full_name or cand.email.split('@')[0] %}
+                {% set cand_pwd = cand_name.split()[0]|capitalize ~ '@123' %}
+                {% set task_title = latest_sub.assignment.title %}
+                {% set deadline_str = latest_sub.due_at.strftime('%b %d, %Y %H:%M UTC') %}
+                {% set mail_subject = "Invitation: Coding Assessment (" ~ task_title ~ ") — Grader.ai" %}
+                {% set mail_body = "Hello " ~ cand_name ~ ",\n\nYou have been invited to complete a coding assessment on the Grader.ai platform.\n\nAssessment Details:\n- Task: " ~ task_title ~ "\n- Deadline: " ~ deadline_str ~ "\n- Portal URL: " ~ request.base_url ~ "login\n\nYour Login Credentials:\n- Portal Username: " ~ cand.email ~ "\n- Temporary Password: " ~ cand_pwd ~ "\n\nInstructions:\n1. Log in to the portal at " ~ request.base_url ~ "login using your credentials.\n2. Download your assigned starter codebase package (.zip).\n3. Complete the task locally using your preferred AI coding tools (Claude, Cursor, Copilot, ChatGPT, etc.).\n4. Save and export your AI conversation / session logs.\n5. Upload your fixed solution archive along with your AI prompt logs before the deadline.\n\nBest regards,\nAssessment & Recruitment Team\nGrader.ai" %}
+                <a 
+                  href="mailto:{{ cand.contact_email or cand.email }}?subject={{ mail_subject|urlencode }}&body={{ mail_body|urlencode }}" 
+                  class="btn-email-action"
+                  title="Open in your default email client with all credentials prefilled"
+                  target="_blank"
+                >
+                  <span>✉️</span> <span>Send Email</span>
+                </a>
+              {% endif %}
+
+              <!-- Delete Candidate -->
+              <form action="/admin/candidates/{{ cand.id }}/delete" method="POST" style="display:inline; margin:0;" onsubmit="return confirm('⚠️ Are you sure you want to delete candidate {{ cand.full_name or cand.email }}? This will remove all their submissions.')">
+                <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.42rem 0.65rem;" title="Delete candidate">
+                  🗑️
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal: Add Candidate (Strictly Name & Contact Email) -->
+<div id="create-candidate-modal" class="modal-backdrop" style="display:none;">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title">Register Candidate</h3>
+      <button type="button" class="modal-close" onclick="closeModal('create-candidate-modal')">&times;</button>
+    </div>
+    <form action="/admin/candidates/create" method="POST" id="create-cand-form">
+      <div class="modal-body">
+        
+        <div class="form-group">
+          <label class="form-label" for="new-name">Candidate Full Name *</label>
+          <input type="text" id="new-name" name="full_name" class="form-control" placeholder="e.g. Arsh Agrawal" required autofocus oninput="updateLiveCredentialsPreview()" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-contact-email">Candidate Contact Email *</label>
+          <input type="email" id="new-contact-email" name="contact_email" class="form-control" placeholder="candidate.email@gmail.com" required />
+          <div class="form-hint">Candidate's actual email address where assignment notifications will be sent.</div>
+        </div>
+
+        <!-- Dynamic Credential Generation Preview -->
+        <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; margin-top: 1.25rem;">
+          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #a5b4fc; margin-bottom: 0.4rem;">
+            ⚡ Auto-Generated Credentials:
+          </div>
+          <div style="font-size: 0.85rem; color: #fff;">
+            Portal Username: <strong id="preview-portal-email" class="code-font" style="color: #67e8f9;">candidate_name@grader.com</strong><br/>
+            Default Password: <strong id="preview-portal-pwd" class="code-font" style="color: #86efac;">Name@123</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('create-candidate-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btn-save-candidate">Create Candidate Account</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Edit Candidate Details -->
+<div id="edit-candidate-modal" class="modal-backdrop" style="display:none;">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Candidate Details</h3>
+      <button type="button" class="modal-close" onclick="closeModal('edit-candidate-modal')">&times;</button>
+    </div>
+    <form id="edit-candidate-form" method="POST">
+      <div class="modal-body">
+        
+        <div class="form-group">
+          <label class="form-label" for="edit-candidate-name">Candidate Full Name *</label>
+          <input type="text" id="edit-candidate-name" name="full_name" class="form-control" required autofocus />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="edit-candidate-contact">Candidate Contact Email *</label>
+          <input type="email" id="edit-candidate-contact" name="contact_email" class="form-control" required />
+          <div class="form-hint">Address where assessment notifications and reminders are sent.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Portal Login Username</label>
+          <input type="text" id="edit-candidate-portal-username" class="form-control code-font" disabled style="opacity: 0.75; color: #a5b4fc; background: var(--bg-surface);" />
+          <div class="form-hint">System-generated portal account username identifier.</div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-candidate-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'flex';
+  }
+
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+
+  function openEditCandidateModal(candidateId, fullName, contactEmail, portalEmail) {
+    const form = document.getElementById('edit-candidate-form');
+    form.action = `/admin/candidates/${candidateId}/edit`;
+    document.getElementById('edit-candidate-name').value = fullName;
+    document.getElementById('edit-candidate-contact').value = contactEmail;
+    document.getElementById('edit-candidate-portal-username').value = portalEmail;
+    openModal('edit-candidate-modal');
+  }
+
+  function updateLiveCredentialsPreview() {
+    const rawName = document.getElementById('new-name').value.trim();
+    if (!rawName) {
+      document.getElementById('preview-portal-email').textContent = 'candidate_name@grader.com';
+      document.getElementById('preview-portal-pwd').textContent = 'Name@123';
+      return;
+    }
+
+    const slug = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'candidate';
+    const firstWord = rawName.split(/\s+/)[0].replace(/[^a-zA-Z0-9]/g, '');
+    const capitalizedFirst = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+
+    document.getElementById('preview-portal-email').textContent = `${slug}@grader.com`;
+    document.getElementById('preview-portal-pwd').textContent = `${capitalizedFirst}@123`;
+  }
+
+  function filterCandidates() {
+    const query = document.getElementById('candidate-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.candidate-row');
+    rows.forEach(row => {
+      const searchData = row.getAttribute('data-search') || '';
+      row.style.display = searchData.includes(query) ? '' : 'none';
+    });
+  }
+
+  function copyFullCredentials() {
+    const email = document.getElementById('cred-email')?.textContent.trim() || '';
+    const password = document.getElementById('cred-password')?.textContent.trim() || '';
+    const url = window.location.origin + '/login';
+    const text = `Grader.ai Portal Credentials:\nLogin URL: ${url}\nUsername: ${email}\nPassword: ${password}`;
+    copyText(text, 'Credentials copied to clipboard!');
+  }
+</script>
+{% endblock %}

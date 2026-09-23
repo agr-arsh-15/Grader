@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Grading Portal{% endblock %}</title>
+  <meta name="description" content="{% block description %}AI Assessment Grading Portal — High standard coding assessment platform{% endblock %}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css?v=4.0" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="layout">
+
+  {% if user is defined and user %}
+  <header class="navbar">
+    <div class="navbar-left">
+      <a href="{% if user.role.value == 'admin' %}/admin/dashboard{% else %}/candidate/dashboard{% endif %}" class="navbar-brand">
+        <div class="brand-icon">
+          <span>⬡</span>
+        </div>
+        <span class="brand-text">Grader<span class="brand-accent">.ai</span></span>
+      </a>
+
+      {% if user.role.value == 'admin' %}
+      <nav class="nav-links">
+        <a href="/admin/dashboard" class="nav-link {% if active_page == 'submissions' %}active{% endif %}">
+          <span class="nav-icon">📊</span> Submissions
+        </a>
+        <a href="/admin/assignments" class="nav-link {% if active_page == 'assignments' %}active{% endif %}">
+          <span class="nav-icon">📁</span> Assignments
+        </a>
+        <a href="/admin/candidates" class="nav-link {% if active_page == 'candidates' %}active{% endif %}">
+          <span class="nav-icon">👥</span> Candidates
+        </a>
+      </nav>
+      {% endif %}
+    </div>
+
+    <div class="navbar-right">
+      <div class="user-pill">
+        <div class="user-avatar-badge">{{ user.email[:2].upper() }}</div>
+        <div class="user-info-text">
+          <span class="user-email">{{ user.email }}</span>
+          <span class="role-badge role-{{ user.role.value }}">{{ user.role.value|upper }}</span>
+        </div>
+      </div>
+      <form action="/auth/logout" method="POST" style="display:inline; margin:0;">
+        <button type="submit" class="btn btn-secondary btn-sm" title="Sign out of your account">
+          <span>Sign out</span>
+        </button>
+      </form>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <span>Grader Portal v1.0 &bull; Automated Assessment Platform</span>
+      <span>Status: <span class="status-indicator-dot"></span> All Systems Operational</span>
+    </div>
+  </footer>
+
+</div>
+<script src="/static/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

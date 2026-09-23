@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Submission — {{ submission.assignment.title }} — Grading Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Submit Assessment</h1>
+    <p class="text-muted text-small mt-1">Package: <strong style="color:#fff;">{{ submission.assignment.title }}</strong></p>
+  </div>
+  <a href="/candidate/dashboard" class="btn btn-secondary">← Back to Hub</a>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="card" style="max-width: 720px; margin: 0 auto;">
+
+  <div class="submission-notice-banner">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span style="font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Deadline</span>
+        <div style="font-size: 1rem; font-weight:700; color:#fff;">{{ submission.due_at.strftime('%b %d, %Y %H:%M UTC') }}</div>
+      </div>
+      <div>
+        <span class="badge badge-{{ submission.status.value }}">{{ submission.status.value|capitalize }}</span>
+      </div>
+    </div>
+  </div>
+
+  <form action="/candidate/submissions/{{ submission.id }}/submit" method="POST" enctype="multipart/form-data" id="submit-form">
+
+    <div class="form-group mt-3">
+      <label class="form-label" for="code_zip">1. Fixed Code Archive (.zip) *</label>
+      <div class="file-dropzone" onclick="document.getElementById('code_zip').click()">
+        <div class="file-dropzone-icon">💻</div>
+        <div class="file-dropzone-text">Click or drag your fixed project .zip file</div>
+        <div class="file-dropzone-hint" id="code-zip-hint">Upload complete project root containing fixes (Max 50 MB)</div>
+        <input id="code_zip" type="file" name="code_zip" accept=".zip" required style="display:none;" onchange="updateSingleFileHint(this, 'code-zip-hint')" />
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label class="form-label" for="log_files">2. AI Session Logs (.txt, .md, .json, .log) *</label>
+      <div class="file-dropzone" onclick="document.getElementById('log_files').click()">
+        <div class="file-dropzone-icon">📜</div>
+        <div class="file-dropzone-text">Click or drag AI conversation / prompt log files</div>
+        <div class="file-dropzone-hint" id="log-files-hint">Select one or multiple log files from Cursor, ChatGPT, Claude, etc.</div>
+        <input id="log_files" type="file" name="log_files" accept=".txt,.md,.json,.log" multiple required style="display:none;" onchange="updateMultiFileHint(this, 'log-files-hint')" />
+      </div>
+      <div class="form-hint" style="margin-top: 0.5rem;">
+        💡 <em>Tip: You can select multiple files at once. These logs are analyzed for problem breakdown, iterative refinement, and AI independence.</em>
+      </div>
+    </div>
+
+    <div class="info-callout mt-3">
+      <span>ℹ️</span>
+      <span>You can re-submit your files anytime before the deadline. New uploads will replace previous versions.</span>
+    </div>
+
+    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+      <a href="/candidate/dashboard" class="btn btn-secondary">Cancel</a>
+      <button id="submit-btn" type="submit" class="btn btn-primary">
+        🚀 Complete &amp; Upload Submission
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function updateSingleFileHint(input, hintId) {
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      document.getElementById(hintId).textContent = `✅ Selected: ${file.name} (${sizeMB} MB)`;
+      document.getElementById(hintId).style.color = 'var(--success)';
+    }
+  }
+
+  function updateMultiFileHint(input, hintId) {
+    if (input.files && input.files.length > 0) {
+      const count = input.files.length;
+      const fileNames = Array.from(input.files).map(f => f.name).slice(0, 3).join(', ');
+      const overflow = count > 3 ? ` and ${count - 3} more` : '';
+      document.getElementById(hintId).textContent = `✅ ${count} log file(s) attached: ${fileNames}${overflow}`;
+      document.getElementById(hintId).style.color = 'var(--success)';
+    }
+  }
+
+  document.getElementById('submit-form').addEventListener('submit', function() {
+    setTimeout(() => {
+      const btn = document.getElementById('submit-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Uploading code &amp; logs…';
+      }
+    }, 10);
+  });
+</script>
+{% endblock %}

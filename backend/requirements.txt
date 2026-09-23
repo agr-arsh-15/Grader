@@ -1,0 +1,16 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy[asyncio]==2.0.54
+# psycopg3 (binary wheels available for Python 3.14+; use asyncio driver)
+psycopg[binary,pool]==3.3.6
+alembic==1.13.3
+pydantic-settings==2.5.2
+pydantic>=2.9                # pip will resolve a Python 3.14-compatible wheel
+email-validator>=2.0         # required by Pydantic's EmailStr
+python-jose[cryptography]==3.3.0
+bcrypt>=4.0                  # direct bcrypt, avoids passlib compatibility issues
+python-multipart==0.0.9
+jinja2==3.1.4
+aiofiles==24.1.0
+httpx==0.27.2
+python-dotenv==1.0.1

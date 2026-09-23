@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Grading Report — {{ submission.candidate.email }} — Grading Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="flex items-center gap-2">
+      <span class="badge badge-graded">Official Report</span>
+      <span class="text-muted text-small">Submission ID: {{ submission.id }}</span>
+    </div>
+    <h1 class="page-title mt-1">{{ submission.assignment.title }}</h1>
+    <p class="text-muted text-small">
+      Candidate: <strong style="color: #fff;">{{ submission.candidate.email }}</strong> &bull; Submitted: {{ submission.submitted_at.strftime('%b %d, %Y %H:%M UTC') if submission.submitted_at else 'N/A' }}
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">
+      🖨️ Print Report
+    </button>
+    <a href="/admin/dashboard" class="btn btn-secondary btn-sm">← Back to Dashboard</a>
+  </div>
+</div>
+
+{% if submission.grading_result %}
+{% set gr = submission.grading_result %}
+
+<!-- Score summary hero -->
+<div class="report-hero-card">
+  <div class="report-hero-header">
+    <div>
+      <span class="text-muted text-small" style="text-transform:uppercase; letter-spacing:0.06em; font-weight:600;">Overall Evaluation</span>
+      <div class="report-big-score">{{ "%.1f"|format(gr.overall_score) }}<span class="report-score-denom">/100</span></div>
+    </div>
+    <div class="report-verdict">
+      {% if gr.overall_score >= 80 %}
+        <span class="score-verdict high">🌟 Exceptional Performance</span>
+      {% elif gr.overall_score >= 60 %}
+        <span class="score-verdict med">👍 Solid Competency</span>
+      {% elif gr.overall_score >= 40 %}
+        <span class="score-verdict warning">⚠️ Partial Completion</span>
+      {% else %}
+        <span class="score-verdict low">❌ Needs Improvement</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="score-grid mt-3">
+    <div class="score-box">
+      <div class="score-value">{{ "%.1f"|format(gr.automated_score) }}%</div>
+      <div class="score-label">Automated Code Verification</div>
+      <div class="text-muted" style="font-size: 0.72rem; margin-top: 4px;">Bug detection script & test suite</div>
+    </div>
+    <div class="score-box">
+      <div class="score-value">{{ "%.1f"|format(gr.ai_usage_score) }}%</div>
+      <div class="score-label">AI Tooling & Prompt Strategy</div>
+      <div class="text-muted" style="font-size: 0.72rem; margin-top: 4px;">Session logs & rubric compliance</div>
+    </div>
+    <div class="score-box">
+      <div class="score-value">{{ "%.1f"|format(gr.overall_score) }}%</div>
+      <div class="score-label">Combined Holistic Score</div>
+      <div class="text-muted" style="font-size: 0.72rem; margin-top: 4px;">Weighted assessment index</div>
+    </div>
+  </div>
+</div>
+
+<!-- Per-bug verification breakdown -->
+<div class="card mt-3">
+  <div class="card-header-flex">
+    <div>
+      <h2 class="card-title" style="margin-bottom:0;">Automated Bug Verification Matrix</h2>
+      <p class="text-muted text-small">Results of test scripts and validation checks executed against the submitted codebase.</p>
+    </div>
+  </div>
+
+  {% if gr.per_bug_status %}
+  <div class="table-wrap mt-2">
+    <table>
+      <thead>
+        <tr>
+          <th>Bug Identification</th>
+          <th>Detection Status</th>
+          <th>Assessment Verification</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for bug_id, result in gr.per_bug_status.items() %}
+        <tr>
+          <td>
+            <div class="code-font" style="font-size:0.875rem; color:#a5b4fc; font-weight:600;">{{ bug_id }}</div>
+          </td>
+          <td>
+            <span class="badge badge-{{ result }}">
+              {{ result|replace('_', ' ')|capitalize }}
+            </span>
+          </td>
+          <td class="text-muted text-small">
+            {% if result == 'fixed' %}
+              <span style="color: var(--success);">✓ Bug resolved and tests passing</span>
+            {% elif result == 'not_fixed' %}
+              <span style="color: var(--danger);">✗ Bug persists in submitted codebase</span>
+            {% elif result == 'partial' %}
+              <span style="color: var(--warning);">⚠ Partial fix detected</span>
+            {% else %}
+              <span>Evaluation via logs review</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted text-small mt-2">No individual bug manifest details available.</p>
+  {% endif %}
+</div>
+
+<!-- AI Usage Analysis Notes -->
+{% if gr.notes %}
+<div class="card mt-3">
+  <div class="card-title flex items-center gap-2">
+    <span>🤖</span> AI Tooling &amp; Workflow Review
+  </div>
+  <div class="ai-notes-container">
+    {{ gr.notes }}
+  </div>
+</div>
+{% endif %}
+
+<!-- Metadata Audit Strip -->
+<div class="metadata-strip mt-3">
+  <div><strong>Evaluated At:</strong> {{ gr.graded_at.strftime('%Y-%m-%d %H:%M:%S UTC') if gr.graded_at else 'N/A' }}</div>
+  <div><strong>Submitted At:</strong> {{ submission.submitted_at.strftime('%Y-%m-%d %H:%M:%S UTC') if submission.submitted_at else 'N/A' }}</div>
+  <div><strong>Deadline:</strong> {{ submission.due_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</div>
+  <div><strong>Log Files Evaluated:</strong> {{ submission.log_file_paths|length }} file(s)</div>
+</div>
+
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <div class="empty-state-icon">⏳</div>
+    <p class="empty-state-text">
+      Grading results are not yet available for this submission.
+      {% if submission.status.value == 'submitted' %}
+        <br/>Click <strong>Grade</strong> on the dashboard to execute evaluation.
+      {% elif submission.status.value == 'grading' %}
+        <br/>Grading pipeline is running…
+      {% endif %}
+    </p>
+    <a href="/admin/dashboard" class="btn btn-secondary mt-2">← Return to Dashboard</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
