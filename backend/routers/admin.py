@@ -28,9 +28,9 @@ from backend.models.assignment import Assignment
 from backend.models.grading_result import GradingResult
 from backend.models.submission import Submission, SubmissionStatus
 from backend.models.user import User, UserRole
-from pathlib import Path
-
+from backend.services.auth_service import hash_password
 from backend.services.email_service import (
+
     compose_assessment_email_text,
     generate_candidate_default_password,
     generate_candidate_portal_email,
