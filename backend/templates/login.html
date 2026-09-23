@@ -66,37 +66,12 @@
         Sign In to Portal →
       </button>
     </form>
-
-    <div class="login-test-accounts">
-      <div class="test-accounts-header">Quick Demo Credentials:</div>
-      <div class="test-accounts-grid">
-        <button type="button" class="test-account-chip" onclick="fillCreds('admin@grader.local', 'Admin@123!')">
-          <span class="chip-icon">👑</span>
-          <div class="chip-text">
-            <strong>Admin Account</strong>
-            <span>admin@grader.local</span>
-          </div>
-        </button>
-        <button type="button" class="test-account-chip" onclick="fillCreds('candidate@grader.local', 'Candidate@123!')">
-          <span class="chip-icon">👤</span>
-          <div class="chip-text">
-            <strong>Candidate Account</strong>
-            <span>candidate@grader.local</span>
-          </div>
-        </button>
-      </div>
-    </div>
   </div>
 </div>
 
 <script>
-  function fillCreds(email, password) {
-    document.getElementById('email').value = email;
-    document.getElementById('password').value = password;
-    showToast('Credentials filled for ' + email, 'info');
-  }
-
   function togglePasswordVisibility() {
+
     const input = document.getElementById('password');
     const btn = document.getElementById('toggle-pwd-btn');
     if (input.type === 'password') {

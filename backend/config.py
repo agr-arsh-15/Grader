@@ -39,9 +39,10 @@ class Settings(BaseSettings):
     upload_dir: str = "/tmp/uploads" if os.getenv("VERCEL") else "uploads"
     max_upload_size_mb: int = 50
 
-    # Seed admin (used only by seed.py)
-    seed_admin_email: str = ""
-    seed_admin_password: str = ""
+    # Seed admin
+    seed_admin_email: str = os.getenv("SEED_ADMIN_EMAIL", "admin@grader.ai")
+    seed_admin_password: str = os.getenv("SEED_ADMIN_PASSWORD", "Default@123")
+
 
 
 settings = Settings()
