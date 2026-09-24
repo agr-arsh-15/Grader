@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import Enum as SAEnum, ForeignKey
+from sqlalchemy import Enum as SAEnum, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -39,8 +39,10 @@ class Submission(Base):
     )
     # Path relative to UPLOAD_DIR: submissions/{id}/code.zip  (null until uploaded)
     code_zip_path: Mapped[Optional[str]] = mapped_column(nullable=True, default=None)
-    # JSONB list of paths relative to UPLOAD_DIR
-    log_file_paths: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    # Cross-database compatible JSON column (JSONB on PostgreSQL, JSON on SQLite)
+    log_file_paths: Mapped[list] = mapped_column(
+        JSON().with_variant(JSONB, "postgresql"), nullable=False, default=list
+    )
     due_at: Mapped[datetime] = mapped_column(nullable=False)
     submitted_at: Mapped[Optional[datetime]] = mapped_column(nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(
