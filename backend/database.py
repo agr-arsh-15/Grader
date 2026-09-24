@@ -7,10 +7,19 @@ import asyncio
 import logging
 import uuid
 
+import os
+from sqlalchemy.pool import NullPool
+
+engine_kwargs = {
+    "echo": False,
+    "pool_pre_ping": True,
+}
+if os.getenv("VERCEL") and not settings.async_database_url.startswith("sqlite"):
+    engine_kwargs["poolclass"] = NullPool
+
 engine = create_async_engine(
     settings.async_database_url,
-    echo=False,
-    pool_pre_ping=True,
+    **engine_kwargs,
 )
 
 AsyncSessionLocal = async_sessionmaker(

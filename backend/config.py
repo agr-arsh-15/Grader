@@ -23,13 +23,30 @@ class Settings(BaseSettings):
 
     @property
     def async_database_url(self) -> str:
-        url = self.database_url
+        url = (self.database_url or "").strip()
+        # Clean up any surrounding quotes from pasting in Vercel
+        if (url.startswith('"') and url.endswith('"')) or (url.startswith("'") and url.endswith("'")):
+            url = url[1:-1].strip()
+        # Clean up accidental "DATABASE_URL=" prefix
+        if url.startswith("DATABASE_URL="):
+            url = url.split("=", 1)[1].strip().strip('"\'')
+
         if url.startswith("postgres://"):
             url = url.replace("postgres://", "postgresql+psycopg://", 1)
         elif url.startswith("postgresql://") and not url.startswith("postgresql+psycopg://"):
             url = url.replace("postgresql://", "postgresql+psycopg://", 1)
         elif url.startswith("sqlite:///") and not url.startswith("sqlite+aiosqlite:///"):
             url = url.replace("sqlite:///", "sqlite+aiosqlite:///", 1)
+
+        # If password contains unescaped '@' (e.g. Graderdk@2026), URL parser fails with multiple '@'
+        if "://" in url and url.count("@") > 1:
+            scheme, rest = url.split("://", 1)
+            auth_part, host_part = rest.rsplit("@", 1)
+            if ":" in auth_part:
+                user, password = auth_part.split(":", 1)
+                password = password.replace("@", "%40")
+                url = f"{scheme}://{user}:{password}@{host_part}"
+
         return url
 
 

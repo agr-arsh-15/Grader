@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+  <defs>
+    <linearGradient id="graderBg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="48%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="graderCheck" x1="14" y1="16" x2="28" y2="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#67E8F9"/>
+    </linearGradient>
+    <linearGradient id="graderSpark" x1="24" y1="4" x2="29" y2="9" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Luminous Squircle Crest -->
+  <rect width="36" height="36" rx="10" fill="url(#graderBg)"/>
+  <rect x="0.75" y="0.75" width="34.5" height="34.5" rx="9.25" stroke="rgba(255, 255, 255, 0.24)" stroke-width="1.5"/>
+
+  <!-- Code Bracket: < (Engineering & Codebase Assessment) -->
+  <path d="M12.5 12L7.5 17.5C7.2 17.8 7.2 18.2 7.5 18.5L12.5 24" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Verified Evaluation Checkmark: ✓ (Grading & Correctness) -->
+  <path d="M14.5 18.5L18.5 22.5L27.5 12" stroke="url(#graderCheck)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- AI Intelligence Spark: ✦ (AI Evaluation & Analysis) -->
+  <path d="M26.5 4.5C26.5 5.8 27.5 6.8 28.8 6.8C27.5 6.8 26.5 7.8 26.5 9.1C26.5 7.8 25.5 6.8 24.2 6.8C25.5 6.8 26.5 5.8 26.5 4.5Z" fill="url(#graderSpark)"/>
+</svg>

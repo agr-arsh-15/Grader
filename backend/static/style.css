@@ -129,14 +129,20 @@ a:hover {
 .brand-icon {
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-sm);
-  background: var(--accent-grad);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 14px rgba(99, 102, 241, 0.45));
+  transition: transform var(--transition);
+}
+.brand-icon:hover {
+  transform: scale(1.06);
+}
+.brand-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .brand-text {
@@ -1718,17 +1724,22 @@ tbody td {
 }
 
 .login-logo-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 18px;
-  background: var(--accent-grad);
+  width: 68px;
+  height: 68px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  color: #fff;
   margin-bottom: 1rem;
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.45);
+  filter: drop-shadow(0 8px 30px rgba(99, 102, 241, 0.5));
+  transition: transform var(--transition);
+}
+.login-logo-icon:hover {
+  transform: scale(1.06);
+}
+.login-logo-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .login-title {

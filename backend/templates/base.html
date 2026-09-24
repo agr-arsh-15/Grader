@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=5.0" />
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg" />
+  <link rel="stylesheet" href="/static/style.css?v=5.1" />
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -19,7 +20,28 @@
     <div class="navbar-left">
       <a href="{% if user.role.value == 'admin' %}/admin/dashboard{% else %}/candidate/dashboard{% endif %}" class="navbar-brand">
         <div class="brand-icon">
-          <span>⬡</span>
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="navLogoBg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4F46E5"/>
+                <stop offset="48%" stop-color="#7C3AED"/>
+                <stop offset="100%" stop-color="#06B6D4"/>
+              </linearGradient>
+              <linearGradient id="navLogoCheck" x1="14" y1="16" x2="28" y2="12" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFFFFF"/>
+                <stop offset="100%" stop-color="#67E8F9"/>
+              </linearGradient>
+              <linearGradient id="navLogoSpark" x1="24" y1="4" x2="29" y2="9" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FDE047"/>
+                <stop offset="100%" stop-color="#F59E0B"/>
+              </linearGradient>
+            </defs>
+            <rect width="36" height="36" rx="10" fill="url(#navLogoBg)"/>
+            <rect x="0.75" y="0.75" width="34.5" height="34.5" rx="9.25" stroke="rgba(255, 255, 255, 0.24)" stroke-width="1.5"/>
+            <path d="M12.5 12L7.5 17.5C7.2 17.8 7.2 18.2 7.5 18.5L12.5 24" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14.5 18.5L18.5 22.5L27.5 12" stroke="url(#navLogoCheck)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M26.5 4.5C26.5 5.8 27.5 6.8 28.8 6.8C27.5 6.8 26.5 7.8 26.5 9.1C26.5 7.8 25.5 6.8 24.2 6.8C25.5 6.8 26.5 5.8 26.5 4.5Z" fill="url(#navLogoSpark)"/>
+          </svg>
         </div>
         <span class="brand-text">Grader<span class="brand-accent">.ai</span></span>
       </a>
@@ -70,8 +92,14 @@
   <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-label="Mobile Navigation">
     <div class="mobile-nav-header">
       <div class="navbar-brand">
-        <div class="brand-icon" style="width: 32px; height: 32px; font-size: 1.1rem;">
-          <span>⬡</span>
+        <div class="brand-icon" style="width: 32px; height: 32px;">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="36" height="36" rx="10" fill="url(#navLogoBg)"/>
+            <rect x="0.75" y="0.75" width="34.5" height="34.5" rx="9.25" stroke="rgba(255, 255, 255, 0.24)" stroke-width="1.5"/>
+            <path d="M12.5 12L7.5 17.5C7.2 17.8 7.2 18.2 7.5 18.5L12.5 24" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14.5 18.5L18.5 22.5L27.5 12" stroke="url(#navLogoCheck)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M26.5 4.5C26.5 5.8 27.5 6.8 28.8 6.8C27.5 6.8 26.5 7.8 26.5 9.1C26.5 7.8 25.5 6.8 24.2 6.8C25.5 6.8 26.5 5.8 26.5 4.5Z" fill="url(#navLogoSpark)"/>
+          </svg>
         </div>
         <span class="brand-text" style="font-size: 1.15rem;">Grader<span class="brand-accent">.ai</span></span>
       </div>
