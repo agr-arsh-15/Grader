@@ -46,36 +46,9 @@ except OSError:
 
 @app.on_event("startup")
 async def on_startup():
-    try:
-        from sqlalchemy import select
-        from backend.database import AsyncSessionLocal, Base, engine
-        from backend.models import User, UserRole
-        from backend.services.auth_service import hash_password
+    from backend.database import init_db
+    await init_db()
 
-        # Create database tables if not created
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logging.info("Database schemas verified/created.")
-
-        # Ensure default admin account exists
-        if settings.seed_admin_email and settings.seed_admin_password:
-            admin_email = settings.seed_admin_email.strip().lower()
-            async with AsyncSessionLocal() as session:
-                res = await session.execute(
-                    select(User).where(User.email == admin_email)
-                )
-                admin_user = res.scalar_one_or_none()
-                if admin_user is None:
-                    new_admin = User(
-                        email=admin_email,
-                        password_hash=hash_password(settings.seed_admin_password),
-                        role=UserRole.admin,
-                    )
-                    session.add(new_admin)
-                    await session.commit()
-                    logging.info(f"Default admin account initialized: {admin_email}")
-    except Exception as e:
-        logging.warning(f"Database table/admin auto-initialization skipped or failed: {e}")
 
 
 
