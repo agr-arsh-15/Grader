@@ -5,9 +5,10 @@ from backend.config import settings
 
 import asyncio
 import logging
+import uuid
 
 engine = create_async_engine(
-    settings.database_url,
+    settings.async_database_url,
     echo=False,
     pool_pre_ping=True,
 )
@@ -26,6 +27,7 @@ class Base(DeclarativeBase):
 
 _db_initialized = False
 _init_lock = asyncio.Lock()
+SEED_ADMIN_UUID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 
 async def init_db():
@@ -39,12 +41,12 @@ async def init_db():
             from sqlalchemy import select
             import backend.models  # Ensure all models are registered on Base.metadata
             from backend.models.user import User, UserRole
-            from backend.services.auth_service import hash_password
+            from backend.services.auth_service import hash_password, verify_password
 
             async with engine.begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
 
-            # Ensure default admin account exists
+            # Ensure default admin account exists and password is in sync
             if settings.seed_admin_email and settings.seed_admin_password:
                 admin_email = settings.seed_admin_email.strip().lower()
                 async with AsyncSessionLocal() as session:
@@ -54,6 +56,7 @@ async def init_db():
                     admin_user = res.scalar_one_or_none()
                     if admin_user is None:
                         new_admin = User(
+                            id=SEED_ADMIN_UUID,
                             email=admin_email,
                             password_hash=hash_password(settings.seed_admin_password),
                             role=UserRole.admin,
@@ -61,9 +64,16 @@ async def init_db():
                         session.add(new_admin)
                         await session.commit()
                         logging.info(f"Default admin account initialized: {admin_email}")
+                    else:
+                        # Synchronize password if it differs from current seed configuration
+                        if not verify_password(settings.seed_admin_password, admin_user.password_hash):
+                            admin_user.password_hash = hash_password(settings.seed_admin_password)
+                            await session.commit()
+                            logging.info(f"Default admin account password synced: {admin_email}")
             _db_initialized = True
         except Exception as e:
             logging.warning(f"Database table/admin initialization skipped or failed: {e}")
+
 
 
 async def get_db() -> AsyncSession:  # type: ignore[return]

@@ -21,6 +21,18 @@ class Settings(BaseSettings):
         "sqlite+aiosqlite:////tmp/grader.db" if os.getenv("VERCEL") else "sqlite+aiosqlite:///./grader.db",
     )
 
+    @property
+    def async_database_url(self) -> str:
+        url = self.database_url
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+psycopg://", 1)
+        elif url.startswith("postgresql://") and not url.startswith("postgresql+psycopg://"):
+            url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+        elif url.startswith("sqlite:///") and not url.startswith("sqlite+aiosqlite:///"):
+            url = url.replace("sqlite:///", "sqlite+aiosqlite:///", 1)
+        return url
+
+
     # JWT
     jwt_secret: str = os.getenv(
         "JWT_SECRET", "default_secret_key_grader_portal_must_be_changed_in_prod"
