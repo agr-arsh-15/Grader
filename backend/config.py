@@ -15,10 +15,12 @@ class Settings(BaseSettings):
     )
 
 
-    # Database (Defaults to SQLite for local/demo/serverless if not specified in env)
-    database_url: str = os.getenv(
-        "DATABASE_URL",
-        "sqlite+aiosqlite:////tmp/grader.db" if os.getenv("VERCEL") else "sqlite+aiosqlite:///./grader.db",
+    # Database (Checks DATABASE_URL, POSTGRES_URL, SUPABASE_DATABASE_URL, or defaults to SQLite)
+    database_url: str = (
+        os.getenv("DATABASE_URL")
+        or os.getenv("POSTGRES_URL")
+        or os.getenv("SUPABASE_DATABASE_URL")
+        or ("sqlite+aiosqlite:////tmp/grader.db" if os.getenv("VERCEL") else "sqlite+aiosqlite:///./grader.db")
     )
 
     @property

@@ -1,5 +1,6 @@
 """FastAPI application factory."""
 import logging
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -57,6 +58,17 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(candidate_router)
 app.include_router(internal_router)
+
+
+# ── Health & Diagnostics ──────────────────────────────────────────────────
+@app.get("/health", include_in_schema=False)
+async def health():
+    db_type = "postgresql" if "postgres" in settings.async_database_url else "sqlite"
+    return {
+        "status": "ok",
+        "database_type": db_type,
+        "is_vercel": bool(os.getenv("VERCEL")),
+    }
 
 
 # ── Root redirect ────────────────────────────────────────────────────────────
